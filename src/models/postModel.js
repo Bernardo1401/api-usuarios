@@ -1,10 +1,19 @@
 const pool = require("../config/database");
 
-const getPosts = async () => {
-    const result = await pool.query (`SELECT post.*, usuarios.name AS usuario_name 
-        FROM post 
-        LEFT JOIN usuarios ON post.user_id = usuarios.id`);
+const getPosts = async (title) => {
+    if(!title) {
+        const result = await pool.query (`SELECT post.*, usuarios.name AS usuario_name 
+            FROM post 
+            LEFT JOIN usuarios ON post.user_id = usuarios.id`
+        );
+            return result.rows
+    } else {
+        const result = await pool.query (`SELECT post.*, usuarios.name AS usuario_name 
+            FROM post 
+            LEFT JOIN usuarios ON post.user_id = usuarios.id WHERE post.title ILIKE $1`,[`%${title}%`]
+        );
         return result.rows
+    }
 }
 
 const getPostById = async (id) => {
@@ -12,7 +21,6 @@ const getPostById = async (id) => {
         FROM post 
         LEFT JOIN usuarios ON post.user_id = usuarios.id 
         WHERE post.id = $1`, [id])
-
         return result.rows
 }
 const createPost = async (title, content, user_id) => {
